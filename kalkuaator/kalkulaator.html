@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Simple Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: lightyellow;
+            padding: 20px;
+        }
+
+        button {
+            padding: 5px 20px;
+            font-size: 24px;
+            font-weight: bold;
+            margin-right: 5px;
+            text-align: center;
+            background-color: darkred;
+            color: white;
+        }
+
+        input {
+            padding: 10px;
+            font-size: 21px;
+            padding: 5px 10px;
+        }
+
+        h3 {
+            font-size: 24px;
+        }
+
+        h2 {
+            font-size: 33px;
+        }
+
+    </style>
+</head>
+<body>
+
+<h2>Lihtne Kalkulaator</h2>
+
+<!-- Input fields for numbers -->
+<input id="num1" placeholder="Sisesta esimene number" type="number"><br><br>
+<input id="num2" placeholder="Sisesta teine number" type="number"><br><br>
+
+<!-- Buttons for operations -->
+<button onclick="calculate('+')">+</button>
+<button onclick="calculate('-')">-</button>
+<button onclick="calculate('*')">*</button>
+<button onclick="calculate('/')">/</button>
+
+<!-- Output area -->
+<h3>Vastus: <span id="result">0</span></h3>
+
+<script>
+        // Function to perform calculation
+        function calculate(operation) {
+            const num1 = parseFloat(document.getElementById('num1').value);
+            const num2 = parseFloat(document.getElementById('num2').value);
+            let result;
+
+            // Perform calculation based on the operation
+            if (operation === '+') {
+                result = num1 + num2;
+            } else if (operation === '-') {
+                result = num1 - num2;
+            } else if (operation === '*') {
+                result = num1 * num2;
+            } else if (operation === '/') {
+                result = num1 / num2;
+            }
+
+            // Display the result
+            document.getElementById('result').innerText = result;
+        }
+
+</script>
+
+</body>
+</html>
