@@ -3,79 +3,195 @@
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>Simple Calculator</title>
+    <title>Lihtne Kalkulaator</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: lightyellow;
             padding: 20px;
         }
-
         button {
             padding: 5px 20px;
             font-size: 24px;
             font-weight: bold;
             margin-right: 5px;
+            margin-top: 10px;
             text-align: center;
             background-color: darkred;
             color: white;
+            border-radius: 5px;
         }
-
+        button:hover {
+            background-color: red;
+            cursor: pointer;
+        }
         input {
             padding: 10px;
             font-size: 21px;
-            padding: 5px 10px;
+            margin-bottom: 10px;
+            display: block;
         }
-
+        h3, h2 {
+            margin: 10px 0;
+        }
         h3 {
             font-size: 24px;
         }
-
         h2 {
             font-size: 33px;
         }
-
+        small {
+            font-size: 16px;
+            color: gray;
+            display: block;
+        }
+        .history {
+            margin-top: 20px;
+        }
+        .history-item {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        input#precision {
+            margin-bottom: 15px;
+        }
+        #errorMessage {
+            color: red;
+            font-size: 16px;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
 
+<!-- Heading and important mentions -->
 <h2>Lihtne Kalkulaator</h2>
+<br><small><b>Protsendi arvutamiseks:</b> esimene sisend on protsent, teine sisend on arv millest protsent leitakse.</small><br>
+<small>Ruutjuure leidmiseks sisesta vaid number esimesse kasti.</small><br>
 
-<!-- Input fields for numbers -->
-<input id="num1" placeholder="Sisesta esimene number" type="number"><br><br>
-<input id="num2" placeholder="Sisesta teine number" type="number"><br><br>
+<!-- Input fields -->
+<input id="num1" placeholder="Sisesta esimene number" type="number">
+<input id="num2" placeholder="Sisesta teine number" type="number">
+<input id="precision" placeholder="Komakoha suurus" type="number" min="0" value="2">
 
 <!-- Buttons for operations -->
 <button onclick="calculate('+')">+</button>
 <button onclick="calculate('-')">-</button>
 <button onclick="calculate('*')">*</button>
 <button onclick="calculate('/')">/</button>
+<button onclick="calculate('%')">%</button>
+<button onclick="calculate('sqrt')">√</button>
+<button onclick="clearInputs()">Tühjenda</button>
 
 <!-- Output area -->
 <h3>Vastus: <span id="result">0</span></h3>
+<div id="errorMessage"></div>
 
+<!-- History -->
+<button onclick="clearHistory()">Tühjenda ajalugu</button>
+<div class="history">
+    <h3>Ajalugu:</h3>
+    <div id="historyList"><p>Ajalugu puudub</p></div>
+</div>
+ 
 <script>
-        // Function to perform calculation
-        function calculate(operation) {
-            const num1 = parseFloat(document.getElementById('num1').value);
-            const num2 = parseFloat(document.getElementById('num2').value);
-            let result;
+    // Function to perform calculation
+    function calculate(operation) {
+        const num1 = parseFloat(document.getElementById('num1').value);
+        const num2 = parseFloat(document.getElementById('num2').value);
+        const precision = parseInt(document.getElementById('precision').value) || 2; // Default precision
+        let result;
 
-            // Perform calculation based on the operation
-            if (operation === '+') {
-                result = num1 + num2;
-            } else if (operation === '-') {
-                result = num1 - num2;
-            } else if (operation === '*') {
-                result = num1 * num2;
-            } else if (operation === '/') {
-                result = num1 / num2;
-            }
-
-            // Display the result
-            document.getElementById('result').innerText = result;
+        if (isNaN(num1)) {
+            showError('Palun sisesta kehtiv esimene number!');
+            return;
         }
 
+        if ((operation === '/' || operation === '%') && isNaN(num2)) {
+            showError('Palun sisesta kehtiv teine number protsendi või jagamise jaoks!');
+            return;
+        }
+
+        if (operation === '/' && num2 === 0) {
+            showError('Jagamine nulliga ei ole lubatud!');
+            return;
+        }
+
+        if (operation === 'sqrt' && num1 < 0) {
+            showError('Ruutjuur negatiivsest arvust ei ole reaalne arv!');
+            return;
+        }
+
+        switch (operation) {
+            case '+':
+                result = num1 + num2;
+                break;
+            case '-':
+                result = num1 - num2;
+                break;
+            case '*':
+                result = num1 * num2;
+                break;
+            case '/':
+                result = num1 / num2;
+                break;
+            case '%':
+                result = (num1 / 100) * num2;
+                break;
+            case 'sqrt':
+                result = Math.sqrt(num1);
+                break;
+            default:
+                showError('Tundmatu operatsioon!');
+                return;
+        }
+
+        document.getElementById('result').innerText = result.toFixed(precision);
+        updateHistory(num1, num2, operation, result);
+    }
+
+    // Function to clear inputs
+    function clearInputs() {
+        document.getElementById('num1').value = '';
+        document.getElementById('num2').value = '';
+        document.getElementById('precision').value = '2'; // Taastab vaikeväärtuse
+        document.getElementById('result').innerText = '0';
+        resetError();
+    }
+
+    // Function to update history
+    function updateHistory(num1, num2, operation, result) {
+        const precision = parseInt(document.getElementById('precision').value) || 2;
+        const historyList = document.getElementById('historyList');
+
+        if (historyList.innerText.includes('Ajalugu puudub')) {
+            historyList.innerHTML = '';
+        }
+
+        const historyItem = document.createElement('div');
+        historyItem.className = 'history-item';
+        historyItem.innerText = `${num1} ${operation} ${num2 || ''} = ${parseFloat(result).toFixed(precision)}`;
+        historyList.prepend(historyItem);
+    }
+
+    // Function to clear history
+    function clearHistory() {
+        const historyList = document.getElementById('historyList');
+        historyList.innerHTML = '<p>Ajalugu puudub</p>';
+    }
+
+    // Function to show error
+    function showError(message) {
+        const errorDiv = document.getElementById('errorMessage');
+        errorDiv.innerText = message;
+        setTimeout(() => (errorDiv.innerText = ''), 5000);
+    }
+
+    // Function to reset error
+    function resetError() {
+        document.getElementById('errorMessage').innerText = '';
+    }
 </script>
 
 </body>
